@@ -3,41 +3,41 @@
 #include <QQmlContext>
 #include <thread>
 #include <QtCharts/QVXYModelMapper>
-
 #include "mydatamodel.h"
 
 
 void point_generator_proc(MyDataModel* model)
 {
-	for(double t=0 ; ; t+=1)
-	{
-		double v = (1 + sin(t/10.0)) / 2.0;
+    for(double t=0 ; ; t+=1)
+    {
+        double y = (1 + sin(t/10.0)) / 2.0;
 
-		model->addNewPoint(std::make_pair(t, v));
+        model->handleNewPoint(QPointF(t, y));
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	}
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
 }
 
 
 int main(int argc, char *argv[])
 {
-	QApplication app(argc, argv);
+    QApplication app(argc, argv);
 
-	QQmlApplicationEngine engine;
-	auto context = engine.rootContext();
+    QQmlApplicationEngine engine;
+    auto context = engine.rootContext();
 
-	MyDataModel* myDataModel = new MyDataModel();
+    auto myDataModel = new MyDataModel();
 
-	QtCharts::QVXYModelMapper* mapper = new QtCharts::QVXYModelMapper();
-	mapper->setModel(myDataModel);
-	mapper->setXColumn(0);
-	mapper->setYColumn(1);
+    auto mapper = new QtCharts::QVXYModelMapper();
+    mapper->setModel(myDataModel);
+    mapper->setXColumn(0);
+    mapper->setYColumn(1);
 
-	std::thread point_generator_thread(point_generator_proc, myDataModel);
+    std::thread point_generator_thread(point_generator_proc, myDataModel);
+    point_generator_thread.detach();
 
-	context->setContextProperty("mapper", mapper);
-	engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    context->setContextProperty("mapper", mapper);
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-	return app.exec();
+    return app.exec();
 }
