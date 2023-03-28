@@ -3,6 +3,7 @@
 #include <QQmlContext>
 #include <thread>
 #include <QtCharts/QVXYModelMapper>
+#include <cmath>
 #include "mydatamodel.h"
 
 
